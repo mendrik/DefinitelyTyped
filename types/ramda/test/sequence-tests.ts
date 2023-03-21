@@ -2,13 +2,17 @@ import * as R from 'ramda';
 
 class Maybe<T> {
     value: T;
-    static of: <S>(v: S) => Maybe<S>;
-    ap: <B>(f: (a: T) => B) => Maybe<B>;
+    constructor(v: T) {
+        this.value = v;
+    }
+    map = <W>(f: (v: T) => W): Maybe<W> => Maybe.of(f(this.value));
+    ap = <W>(m: Maybe<any>) => new Maybe((this as Maybe<(v: T) => W>).value(m.value));
+    static of = <T>(v: T) => new Maybe<T>(v);
 }
 
 () => {
-    const list = R.map(Maybe.of, [1, 2, 3]);
+    const list: Maybe<number>[] = R.map(Maybe.of, [1, 2, 3]);
     const res: Maybe<number[]> = R.sequence(Maybe.of, list);
-    expect(res).toBeInsanceOf(Maybe);
-    expect(res.value).toStrictEqual([1, 2, 3]);
+    res instanceof Maybe; // true
+    res.value; // [1, 2, 3]
 };
